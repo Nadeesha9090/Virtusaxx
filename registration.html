@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html>
+
+    <head>
+	
+		<script type="text/javascript" src="http://platform.linkedin.com/in.js">
+			api_key: 75tlyrjg3fi223
+			authorize: true
+		</script>
+		
+        <title>EVCIA Meetup</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="keywords" content="mobile portfolio, mobile portfolio site">
+        <meta name="author" content="sam deering">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="js/jquery-1.8.3.min.js"></script>
+        <script src="js/jquery.mobile-1.2.0.min.js"></script>
+        <link href="css/jquery.mobile.structure-1.2.0.min.css" rel="stylesheet">
+        <link href="css/jquery.mobile.theme-1.2.0.min.css" rel="stylesheet">
+        <link href="css/jquery.mobile-1.2.0.min.css" rel="stylesheet">
+        <link href="css/photoswipe.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+        <script src="js/script.js"></script>
+        <script src="js/settings.js"></script>
+        <script src="js/klass.min.js"></script>
+        <script src="js/code.photoswipe.jquery-3.0.5.min.js"></script>
+		
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.5b1.js"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
+
+		
+		
+    </head>
+
+    <body>
+
+        <!-- registration page -->
+        <div data-role="page" id="registration">
+            <div data-role="header">
+               	<a href="#" data-icon="back" data-rel="back" title="Go back">Back</a>
+				<h1>Registration</h1>
+				<a href="index.html" data-icon="home">Home</a>
+				
+            </div>
+			
+			
+            <div data-role="content">
+
+                    <div class="pt-menu">
+                       
+						<a data-theme="d" data-corners="false" data-role="button"data-ajax="false" href="FounderR.html">
+                            <img src="images/icons/round/64x64/entr.gif" alt="entr" style="display: block; margin: 0 auto">
+                            Founder
+                        </a>
+												
+						<a data-theme="d" data-corners="false" data-role="button"data-ajax="false" href="vcR.html">
+                            <img src="images/icons/round/64x64/investors.gif" alt="entr" style="display: block; margin: 0 auto">
+                            VC
+                        </a>
+						 
+                    </div>
+
+					
+            </div>
+			
+			
+			
+           
+                <div data-role="navbar" theme="b">
+                    <ul>
+                        <li><a href="#one" data-icon="home">Home</a></li>
+                        <li><a href="#two" data-icon="back">Back</a></li>
+                    </ul>
+					
+					<div data-role="footer">
+						<h2>.Connect</h2>
+						<p class="copyright">&copy; Dream Zone 2014</p>
+					</div>
+                  </div><!--nav bar-->
+       
+		</div><!--Page1-->
+		
+		</body>
+		
+		<script>
+		var Contacts = {
+			index: window.localStorage.getItem("Contacts:index"),
+			$table: document.getElementById("contacts-table"),
+			$form: document.getElementById("contacts-form"),
+			$button_savevc: document.getElementById("contacts-op-savevc"),
+			$button_discardvc: document.getElementById("contacts-op-discardvc"),
+			$button_savef: document.getElementById("contacts-op-savef"),
+			$button_discardf: document.getElementById("contacts-op-discardf"),
+
+			init: function() {
+				// initialize storage index
+				if (!Contacts.index) {
+					window.localStorage.setItem("Contacts:index", Contacts.index = 1);
+				}
+
+				// initialize form
+				Contacts.$form.reset();
+				Contacts.$button_discard.addEventListener("click", function(event) {
+					Contacts.$form.reset();
+					Contacts.$form.id_entry.value = 0;
+				}, true);
+				Contacts.$form.addEventListener("submit", function(event) {
+					var entry = {
+						id: parseInt(this.id_entry.value),
+						first_name: this.first_name.value,
+						last_name: this.last_name.value,
+						email: this.email.value
+					};
+					if (entry.id == 0) { // add
+						Contacts.storeAdd(entry);
+						Contacts.tableAdd(entry);
+					}
+					else { // edit
+						Contacts.storeEdit(entry);
+						Contacts.tableEdit(entry);
+					}
+
+					this.reset();
+					this.id_entry.value = 0;
+					event.preventDefault();
+				}, true);
+
+				// initialize table
+				if (window.localStorage.length - 1) {
+					var contacts_list = [], i, key;
+					for (i = 0; i < window.localStorage.length; i++) {
+						key = window.localStorage.key(i);
+						if (/Contacts:\d+/.test(key)) {
+							contacts_list.push(JSON.parse(window.localStorage.getItem(key)));
+						}
+					}
+
+					if (contacts_list.length) {
+						contacts_list
+							.sort(function(a, b) {
+								return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
+							})
+							.forEach(Contacts.tableAdd);
+					}
+				}
+				Contacts.$table.addEventListener("click", function(event) {
+					var op = event.target.getAttribute("data-op");
+					if (/edit|remove/.test(op)) {
+						var entry = JSON.parse(window.localStorage.getItem("Contacts:"+ event.target.getAttribute("data-id")));
+						if (op == "edit") {
+							Contacts.$form.first_name.value = entry.first_name;
+							Contacts.$form.last_name.value = entry.last_name;
+							Contacts.$form.email.value = entry.email;
+							Contacts.$form.id_entry.value = entry.id;
+						}
+						else if (op == "remove") {
+							if (confirm('Are you sure you want to remove "'+ entry.first_name +' '+ entry.last_name +'" from your contacts?')) {
+								Contacts.storeRemove(entry);
+								Contacts.tableRemove(entry);
+							}
+						}
+						event.preventDefault();
+					}
+				}, true);
+			},
+
+			storeAdd: function(entry) {
+				entry.id = Contacts.index;
+				window.localStorage.setItem("Contacts:index", ++Contacts.index);
+				window.localStorage.setItem("Contacts:"+ entry.id, JSON.stringify(entry));
+			},
+			storeEdit: function(entry) {
+				window.localStorage.setItem("Contacts:"+ entry.id, JSON.stringify(entry));
+			},
+			storeRemove: function(entry) {
+				window.localStorage.removeItem("Contacts:"+ entry.id);
+			},
+
+			tableAdd: function(entry) {
+				var $tr = document.createElement("tr"), $td, key;
+				for (key in entry) {
+					if (entry.hasOwnProperty(key)) {
+						$td = document.createElement("td");
+						$td.appendChild(document.createTextNode(entry[key]));
+						$tr.appendChild($td);
+					}
+				}
+				$td = document.createElement("td");
+				$td.innerHTML = '<a data-op="edit" data-id="'+ entry.id +'">Edit</a> | <a data-op="remove" data-id="'+ entry.id +'">Remove</a>';
+				$tr.appendChild($td);
+				$tr.setAttribute("id", "entry-"+ entry.id);
+				Contacts.$table.appendChild($tr);
+			},
+			tableEdit: function(entry) {
+				var $tr = document.getElementById("entry-"+ entry.id), $td, key;
+				$tr.innerHTML = "";
+				for (key in entry) {
+					if (entry.hasOwnProperty(key)) {
+						$td = document.createElement("td");
+						$td.appendChild(document.createTextNode(entry[key]));
+						$tr.appendChild($td);
+					}
+				}
+				$td = document.createElement("td");
+				$td.innerHTML = '<a data-op="edit" data-id="'+ entry.id +'">Edit</a> | <a data-op="remove" data-id="'+ entry.id +'">Remove</a>';
+				$tr.appendChild($td);
+			},
+			tableRemove: function(entry) {
+				Contacts.$table.removeChild(document.getElementById("entry-"+ entry.id));
+			}
+		};
+		Contacts.init();
+	</script>
+	</html>
